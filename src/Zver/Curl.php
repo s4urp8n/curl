@@ -57,9 +57,13 @@ class Curl
         return $this;
     }
 
-    protected function exec()
+    protected function exec(callable $contentCallback = null)
     {
-        return new Response(curl_exec($this->handle),
+        $content = curl_exec($this->handle);
+        if (is_callable($contentCallback)) {
+            $content = $contentCallback($content);
+        }
+        return new Response($content,
                             $this->getContentType(),
                             $this->getStatusCode(),
                             $this->getError());
@@ -86,5 +90,24 @@ class Curl
                      ->opt(CURLOPT_URL, $url)
                      ->setProxy($proxy)
                      ->exec();
+    }
+
+    public static function json($url, array $data, $proxy = false)
+    {
+        $dataString = json_encode($data);
+        $headers = [
+            'Content-Type: application/json; charset=UTF-8',
+            'Content-Length: ' . strlen($dataString),
+        ];
+        return static::init()
+                     ->setProxy($proxy)
+                     ->opt(CURLOPT_URL, $url)
+                     ->opt(CURLOPT_CUSTOMREQUEST, "POST")
+                     ->opt(CURLOPT_POSTFIELDS, $dataString)
+                     ->opt(CURLOPT_RETURNTRANSFER, true)
+                     ->opt(CURLOPT_HTTPHEADER, $headers)
+                     ->exec(function ($content) {
+                         return json_decode($content, true);
+                     });
     }
 }

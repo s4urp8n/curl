@@ -19,6 +19,8 @@
     }
   },
   "require": {
+    "ext-curl": "*",
+    "ext-json": "*"
   },
   "require-dev": {
   }

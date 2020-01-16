@@ -1,6 +1,6 @@
 <?php
 
-class CurlTest extends PHPUnit\Framework\TestCase
+class CurlGetTest extends PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider getDataProvider
